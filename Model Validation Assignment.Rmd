@@ -1,0 +1,96 @@
+---
+title: "Model Validation"
+author: "Elizabeth Buckle"
+date: "2023-06-04"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+library(lubridate)
+```
+
+```{r}
+bike_cleaned_4 <- read_csv("bike_cleaned-4.csv", 
+    col_types = cols(dteday = col_date(format = "%m/%d/%Y")))
+```
+
+```{r}
+bike = bike_cleaned_4
+bike
+```
+
+```{r}
+bike = bike %>% mutate_if(is.character, as_factor)
+bike
+```
+
+```{r}
+bike$hr <- as.factor(bike$hr)
+bike
+```
+
+```{r}
+set.seed(1234)
+bike_split = initial_split(bike, prop = 0.70, strata = count)
+train = training(bike_split)
+test = testing(bike_split)
+```
+
+#Q1: Rows in training data set - 12163
+
+
+#Q2: Strata by count  
+#B - count is similarly represented in both sets  
+
+
+```{r}
+bike2 = bike %>% select("count", "season", "mnth", "hr", "holiday", "weekday", "temp", "weathersit")
+```
+
+```{r}
+set.seed(1234)
+bike_split = initial_split(bike2, prop = 0.70, strata = count)
+train = training(bike_split)
+test = testing(bike_split)
+```
+
+```{r}
+bike_recipe = recipe(count ~ season + mnth + hr + holiday + weekday + temp + weathersit, train)
+
+lm_model = 
+  linear_reg() %>%
+  set_engine("lm")
+
+lm_wflow = 
+  workflow() %>%
+  add_model(lm_model) %>%
+  add_recipe(bike_recipe)
+
+lm_fit = fit(lm_wflow, train)
+```
+
+```{r}
+summary(lm_fit$fit$fit$fit)
+```
+
+#Q3: Adjusted R Squared is 0.6209  
+
+
+```{r}
+predict_train = predict(lm_fit, data.frame(train))
+summary(predict_train)
+```
+
+
+#Q4: Max is about 600 and some are in the negative. (2 answers)
+
+
+```{r}
+lm_fit %>% predict(test) %>% bind_cols(test) %>% metrics(truth = count, estimate = .pred)
+```
+
+#Q5: 0.6271  
+
+

@@ -1,0 +1,126 @@
+---
+title: "Simple Linear Reg"
+author: "Elizabeth Buckle"
+date: "2023-05-29"
+output: html_document
+---
+
+```{r}
+#install.packages("tidymodels")
+```
+
+```{r}
+#install.packages("tidyverse")
+#install.packages("GGally")
+#install.packages("lmtest")
+```
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+library(GGally)
+library(lmtest)
+```
+
+```{r}
+air = airquality
+```
+
+Q1 - rows = 153
+Q2 - columns = 6
+
+```{r}
+summary(air)
+```
+Q3 - True there is missing data in Ozone
+
+```{r}
+ggpairs(air)
+```
+
+
+Q4 - which variable is most likely to be the response (Y) variable?
+Temp
+
+```{r}
+air2 = air %>% drop_na()
+```
+
+Q5: 111
+Q6: 6
+
+```{r}
+ggpairs(air2)
+ggcorr(air2)
+```
+Q7: Temp
+
+Q8: Day
+
+```{r}
+ggplot(air, aes(x=Temp, y=Ozone)) + geom_point()
+```
+
+
+Q9: C, as temp increases, ozone increases
+
+```{r}
+air2_simple = recipe(Ozone ~ Temp, air)
+air2_simple
+```
+
+```{r}
+lm_model = linear_reg() %>%
+  set_engine("lm")
+```
+
+```{r}
+lm_wflow = workflow() %>%
+  add_model(lm_model) %>%
+  add_recipe(air2_simple)
+```
+
+```{r}
+lm_fit = fit(lm_wflow, air2)
+```
+
+
+```{r}
+summary(lm_fit$fit$fit$fit)
+```
+Q10: 2.4391
+
+Q11: 0.488
+
+Q12: Yes Temp is significant
+
+```{r}
+confint(lm_fit$fit$fit$fit)
+```
+
+Q13: True
+
+```{r}
+testdata = data.frame(Temp = 80)
+predict(lm_fit, new_data = testdata)
+```
+
+Q14: 47.48
+
+```{r}
+ggplot(air2, aes(x=Temp, y=Ozone)) + geom_point() + geom_smooth(method="lm")
+```
+```{r}
+dwtest(lm_fit$fit$fit$fit)
+```
+Low p value but still fail to reject the null
+
+```{r}
+airtemp = air2 %>% mutate(resid1 = lm_fit$fit$fit$fit$residuals)
+ggplot(air2, aes(x=Temp, y=Ozone)) + geom_point() + theme_bw()
+```
+```{r}
+ggplot(airtemp, aes(x=resid1)) + geom_histogram()
+```
+
+True there is no evidence of non-independence (autocorrelated) residuals.

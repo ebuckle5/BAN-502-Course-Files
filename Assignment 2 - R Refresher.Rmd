@@ -1,0 +1,131 @@
+---
+output:
+  word_document: default
+  html_document: default
+---
+```{r}
+library(tidyverse)
+diamondsdata = as_tibble(diamonds)
+str(diamondsdata)
+```
+
+**Question 1**  
+53,940 rows
+
+**Question 2**
+10 variables
+
+```{r}
+#library(esquisse)
+
+ggplot(diamondsdata) +
+ aes(x = carat, y = price) +
+ geom_point(shape = "circle", size = 1.5, colour = "#112446") +
+ theme_minimal()
+```
+
+
+**Question 3**
+Using ggplot, create a scatterplot of caret (x axis) versus price (y axis). Which statement best describes the relationship between “caret” and “price”?
+A. As caret decreases price increases
+**B. As caret increases price increases**
+C. As caret increases price does not change
+
+```{r}
+#esquisser()
+
+ggplot(diamondsdata) +
+ aes(x = cut, y = price) +
+ geom_col(fill = "#112446") +
+ theme_minimal()
+```
+
+
+**Question 4**
+Repeat Question 3, but in this plot color the scatterplot points by the “cut” variable. Which statement best describes the relationship between “cut” and “price”?
+**A. As cut quality increases price increases**
+B. As cut quality decreases price increases
+C. As cut quality increases price does not change
+
+```{r}
+#esquisser()
+
+ggplot(diamondsdata) +
+ aes(x = cut, y = price) +
+ geom_col(fill = "#112446") +
+ theme_minimal() +
+ facet_wrap(vars(color))
+```
+
+
+**Question 5**
+Repeat Question 4, but in this plot you should facet by “color”. Faceting a plot is described at this link: http://www.cookbook-r.com/Graphs/Facets_(ggplot2)/.
+What does “faceting” do to the plot?
+A. Creates a separate scatterplot for each “cut”
+B. Creates a separate scatterplot for each “carat”
+**C. Creates a separate scatterplot for each “color”**
+D. Creates a separate scatterplot for each “price”
+
+```{r}
+str(InventoryData)
+```
+
+
+**Question 6**
+Use the “read_csv” function to read-in the “InventoryData.csv” file as a data frame called
+“inventory”. NOTE: In this course we will ALWAYS (unless instructed otherwise) use the “read_csv” command. Do NOT use the “read.csv” command.
+In the “inventory” data frame that you have just created, what type of variable is “Supplier”?
+A. numeric
+B. integer
+C. factor
+**D. character**
+
+```{r}
+summary(InventoryData)
+```
+
+
+**Question 7**
+In the “inventory” data frame that you have just created, what is the mean of the “On Hand” variable?  
+
+**100.5**
+
+```{r}
+InventoryA = InventoryData %>% filter(Supplier == "A")
+```
+
+**Question 8**
+Use a filter to create a new data frame called “inventoryA” containing only inventory from Supplier A. How many rows are in this new data frame?
+
+**3695**
+
+**Question 9**
+What does the line of code shown below do? Note the use of the backtick character (on the tilde key on your computer’s keyboard) to delineate the variable names with spaces in them.
+
+
+```{r}
+InventoryA = mutate(InventoryA, OnHandRatio = `On Hand` / `Annual Demand`)
+```
+
+A. Creates a new variable called “inventoryA”
+**B. Creates a new variable called “OnHandRatio”**
+C. Creates a new data frame called “OnHandRatio”
+
+
+```{r}
+avg_cost = InventoryA
+
+avg_cost = InventoryA %>% group_by(`Item SKU`) %>% summarise(SKUAvgCost = mean(`Cost per Unit ($)`))
+avg_cost
+```
+
+
+**Question 10**
+Using the “inventoryA” object that you created in Question 9, create a new data frame called “avg_cost” that contains the average “Cost per Unit ($)” by each “Item SKU” (let this quantity be in a variable called “SKUAvgCost. 
+Hint: Recall the summarize and group_by functions and the use of the backtick character from Task 8. Your data frame should have only two columns:”Item SKU” and “SKUAvgCost”.  
+
+What is the “SKUAvgCost” of items with an “Item SKU” of 011?
+
+**12.33**
+
+
